@@ -4,6 +4,12 @@ const pizzaController = {
     //get all pizzas 
     getAllPizza(req, res) {
         Pizza.find({})
+        .populate({
+            path: 'comments',
+            select: '-_V' //The minus sign - in front of the field indicates that we don't want it to be returned
+        })
+        .select('-_V')
+        .sort({ _id: -1}) //sorts by newest comment first
         .then(dbPizzaData => res.json(dbPizzaData))
         .catch(err => {
             console.log(err);
@@ -14,6 +20,11 @@ const pizzaController = {
     getPizzaById({params}, res) {
         Pizza.findOne({_id: params.id})
 //Instead of accessing the entire req, we've destructured params out of it, because that's the only data we need for this request to be fulfilled
+        .populate({
+            path: 'comments',
+            select: '-_V'
+        })
+        .select('-_V')
         .then(dbPizzaData => {
             //if no pizza is found, send 404
             if(!dbPizzaData) {
