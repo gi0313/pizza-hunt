@@ -1,4 +1,5 @@
 const {Schema, model} = require('mongoose');
+const dateFormat = require('../utils/dateFormat');
 
 const PizzaSchema = new Schema({
     pizzaName: {
@@ -9,7 +10,11 @@ const PizzaSchema = new Schema({
     },
     createdAt: {
         type: Date,
-        default: Date.now
+        default: Date.now,
+        get: (createdAtVal) => dateFormat(createdAtVal)
+//With this get option in place, every time we retrieve a pizza, 
+//the value in the createdAt field will be formatted by the dateFormat() function 
+//and used instead of the default timestamp value
     },
     size: {
         type: String,
@@ -25,6 +30,8 @@ const PizzaSchema = new Schema({
 {
     toJSON: {
         virtuals: true,
+        getters: true
+    //we'll need to tell the Mongoose model that it should use any getter function we've specified
     },
     id: false
     //We set id to false because this is a virtual that Mongoose returns, and we don’t need it
