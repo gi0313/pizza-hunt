@@ -23,6 +23,32 @@ const commentController = {
         })
         .catch(err => res.json(err));
     },
+    addReply({params, body}, res) {
+        Comment.findOneAndUpdate(
+            {_id: params.commentId},
+            {$push: { replies:body }},
+            {new: true}
+        )
+        .then(dbPizzaData => {
+            if(!dbPizzaData) {
+                res.status(404).json({message: 'No pizza found with this id!'});
+                return;
+            }
+            res.json(dbPizzaData);
+        })
+        .catch(err => res.json(err));
+    },
+    removeReply({params, body}, res) {
+        Comment.findOneAndUpdate(
+            {_id: params.commentId},
+            {$pull: {replies: {replyId: params.replyId}}},
+            //we're using the MongoDB $pull operator to remove the specific reply from the replies array
+            //where the replyId matches the value of params.replyId passed in from the route. 
+            {new: true}
+        )
+        .then(dbPizzaData => res.json(dbPizzaData))
+        .catch(err => res.json(err));
+    },
     //First we'll delete the comment, then we'll use its _id to remove it from the pizza
     removeComment({params}, res) {
         Comment.findOneAndDelete({_id: params.commentId}) //while also returning its data
